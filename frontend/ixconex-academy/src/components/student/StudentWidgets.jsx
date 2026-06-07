@@ -2,17 +2,18 @@ import { Link } from 'react-router-dom';
 
 export default function QuickLinks({ links }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
       {links.map((link) => (
         <Link
           key={link.path}
           to={link.path}
-          className="group flex flex-col items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg"
+          className="group flex flex-col items-center gap-2 rounded-2xl border border-slate-200/80 bg-white p-3 text-center shadow-sm transition-all duration-300 active:scale-[0.98] sm:gap-3 sm:p-5 sm:hover:-translate-y-1 sm:hover:border-primary/20 sm:hover:shadow-lg"
         >
-          <div className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition-transform group-hover:scale-110 ${link.color || 'bg-blue-50 text-primary'}`}>
-            <link.icon size={22} />
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl shadow-sm transition-transform sm:h-12 sm:w-12 sm:rounded-2xl sm:group-hover:scale-110 ${link.color || 'bg-blue-50 text-primary'}`}>
+            <link.icon size={20} className="sm:hidden" />
+            <link.icon size={22} className="hidden sm:block" />
           </div>
-          <span className="text-xs font-bold text-text-primary">{link.label}</span>
+          <span className="text-[11px] font-bold leading-tight text-text-primary sm:text-xs">{link.label}</span>
         </Link>
       ))}
     </div>

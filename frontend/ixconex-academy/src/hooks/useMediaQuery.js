@@ -16,10 +16,16 @@ export function useMediaQuery(query) {
   return matches;
 }
 
+/** Matches Tailwind `md` breakpoint and below */
 export function useIsMobile() {
   return useMediaQuery('(max-width: 767px)');
 }
 
 export function useIsTablet() {
   return useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
+}
+
+/** Matches Tailwind `lg` breakpoint and above */
+export function useIsDesktop() {
+  return useMediaQuery('(min-width: 1024px)');
 }

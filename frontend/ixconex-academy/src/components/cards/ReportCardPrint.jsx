@@ -8,22 +8,23 @@ export default function ReportCardPrint({ report, className = '' }) {
   const { student, results, summary, teacherComment } = report;
 
   return (
-    <div className={`rounded-xl border border-slate-200 bg-white p-8 shadow-sm print:shadow-none ${className}`}>
+    <div className={`rounded-xl border border-slate-200 bg-white p-4 shadow-sm print:p-8 print:shadow-none sm:p-6 md:p-8 ${className}`}>
       <div className="border-b-2 border-primary pb-4 text-center">
-        <h1 className="text-2xl font-bold text-primary">{APP_NAME}</h1>
+        <h1 className="text-xl font-bold text-primary sm:text-2xl">{APP_NAME}</h1>
         <p className="text-sm text-text-secondary">Excellence in Education · P.O. Box 12345, Nairobi</p>
         <h2 className="mt-3 text-lg font-semibold text-text-primary">STUDENT REPORT CARD</h2>
         <p className="text-sm text-text-secondary">Term 1 · 2024 Academic Year</p>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 md:grid-cols-4 md:gap-4">
         <div><span className="text-text-secondary">Name:</span> <strong>{student.firstName} {student.lastName}</strong></div>
         <div><span className="text-text-secondary">Adm No:</span> <strong>{student.admissionNumber}</strong></div>
         <div><span className="text-text-secondary">Class:</span> <strong>{student.streamName}</strong></div>
         <div><span className="text-text-secondary">Gender:</span> <strong>{student.gender}</strong></div>
       </div>
 
-      <table className="mt-6 w-full text-sm">
+      <div className="table-scroll mt-6 overflow-x-auto">
+        <table className="w-full min-w-[480px] text-sm">
         <thead>
           <tr className="border-b-2 border-slate-200 bg-slate-50">
             <th className="px-3 py-2 text-left font-semibold">Subject</th>
@@ -44,9 +45,10 @@ export default function ReportCardPrint({ report, className = '' }) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 rounded-xl bg-slate-50 p-4 md:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3 sm:gap-4 sm:p-4 md:grid-cols-4">
         <div><p className="text-xs text-text-secondary">Total Marks</p><p className="text-lg font-bold">{summary.totalMarks}</p></div>
         <div><p className="text-xs text-text-secondary">Average</p><p className="text-lg font-bold">{summary.average}%</p></div>
         <div><p className="text-xs text-text-secondary">Position</p><p className="text-lg font-bold">{summary.position}</p></div>

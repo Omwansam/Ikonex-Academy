@@ -79,12 +79,12 @@ export default function StudentDashboardPage() {
           ) : (
             <div className="space-y-3">
               {upcomingAssessments.map((a) => (
-                <div key={a.assessmentId} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:bg-slate-50">
-                  <div>
+                <div key={a.assessmentId} className="flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50/50 p-4 transition-colors hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <p className="font-semibold text-text-primary">{a.title}</p>
                     <p className="text-sm text-text-secondary">{a.subjectName} · {a.type}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="flex items-center justify-between gap-3 sm:block sm:text-right">
                     <Badge variant="warning">Upcoming</Badge>
                     <p className="mt-1 text-xs font-medium text-text-secondary">{formatDate(a.date)}</p>
                   </div>

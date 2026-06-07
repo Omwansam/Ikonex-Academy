@@ -3,7 +3,7 @@ import Button from '../ui/Button';
 
 export default function PageHeader({ title, subtitle, breadcrumbs = [], action, actionLabel, onAction, children, badge }) {
   return (
-    <div className="mb-8">
+    <div className="mb-6 sm:mb-8">
       {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">

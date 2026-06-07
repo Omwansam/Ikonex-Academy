@@ -43,9 +43,9 @@ export default function StudentsListPage() {
   const columns = [
     { key: 'admissionNumber', label: 'Admission No.' },
     { key: 'name', label: 'Full Name', render: (r) => formatFullName(r.firstName, r.lastName) },
-    { key: 'gender', label: 'Gender' },
+    { key: 'gender', label: 'Gender', hideOnMobile: true },
     { key: 'streamName', label: 'Class Stream' },
-    { key: 'parentPhone', label: 'Parent Contact' },
+    { key: 'parentPhone', label: 'Parent Contact', hideOnMobile: true },
     { key: 'status', label: 'Status', render: (r) => <Badge>{r.status}</Badge> },
     {
       key: 'actions', label: 'Actions',

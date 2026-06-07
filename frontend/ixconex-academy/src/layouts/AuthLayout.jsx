@@ -51,15 +51,15 @@ export default function AuthLayout() {
         </div>
       </div>
 
-      <div className="flex w-full flex-col items-center justify-center bg-background p-6 lg:w-1/2 lg:p-12">
-        <div className="mb-8 text-center lg:hidden">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-xl font-bold text-white shadow-lg">
+      <div className="flex w-full flex-col items-center justify-center bg-background p-4 sm:p-6 lg:w-1/2 lg:p-12">
+        <div className="mb-6 text-center lg:hidden">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-600 text-lg font-bold text-white shadow-lg sm:h-14 sm:w-14 sm:text-xl">
             IK
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-text-primary">{APP_NAME}</h1>
+          <h1 className="mt-3 text-xl font-bold text-text-primary sm:mt-4 sm:text-2xl">{APP_NAME}</h1>
         </div>
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-xl shadow-slate-200/50">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-8">
             <Outlet />
           </div>
         </div>

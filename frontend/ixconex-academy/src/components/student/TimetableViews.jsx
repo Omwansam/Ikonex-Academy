@@ -60,8 +60,8 @@ export function WeeklyTimetableGrid({ schedule, activeDay }) {
   };
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-      <table className="w-full min-w-[720px] border-collapse">
+    <div className="table-scroll overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <table className="w-full min-w-[600px] border-collapse lg:min-w-[720px]">
         <thead>
           <tr>
             <th className="w-24 border-b border-r border-slate-100 bg-slate-50 px-3 py-4 text-left text-xs font-semibold uppercase tracking-wide text-text-secondary">
@@ -110,6 +110,45 @@ export function WeeklyTimetableGrid({ schedule, activeDay }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+export function DayScheduleList({ schedule, activeDay }) {
+  return (
+    <div className="space-y-4">
+      {schedule.map((day) => (
+        <div key={day.day} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className={`border-b px-4 py-3 sm:px-5 sm:py-4 ${day.day === activeDay ? 'bg-primary/5' : 'bg-slate-50'}`}>
+            <h3 className={`font-semibold ${day.day === activeDay ? 'text-primary' : 'text-text-primary'}`}>
+              {day.day}
+              {day.day === activeDay && (
+                <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">TODAY</span>
+              )}
+            </h3>
+            <p className="text-xs text-text-secondary">{day.slots.length} periods</p>
+          </div>
+          <div className="space-y-3 p-3 sm:p-4">
+            {day.slots.length === 0 ? (
+              <p className="py-2 text-center text-sm text-text-secondary">No classes</p>
+            ) : (
+              day.slots.map((slot, idx) => (
+                <div key={idx} className="flex gap-3 rounded-xl border border-slate-100 p-3">
+                  <div className="flex w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-primary/10 py-2 sm:w-14">
+                    <span className="text-xs font-bold text-primary">{slot.time.split(':')[0]}</span>
+                    <span className="text-[10px] text-text-secondary">:{slot.time.split(':')[1]}</span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-text-primary">{slot.subject}</p>
+                    <p className="truncate text-xs text-text-secondary">{slot.teacher}</p>
+                    <p className="truncate text-xs text-text-secondary">{slot.room}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -11,7 +11,7 @@ export default function StatCard({ title, value, icon: Icon, trend, trendLabel, 
   const palette = palettes[color] || palettes.primary;
 
   return (
-    <div className={`group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${className}`}>
+    <div className={`group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 sm:p-5 hover:shadow-lg ${className}`}>
       <div className={`absolute inset-0 bg-gradient-to-br ${palette.accent} opacity-0 transition-opacity group-hover:opacity-100`} />
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">

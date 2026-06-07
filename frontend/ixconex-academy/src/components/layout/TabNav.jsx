@@ -2,23 +2,28 @@ import { NavLink } from 'react-router-dom';
 
 export default function TabNav({ tabs, className = '' }) {
   return (
-    <nav className={`flex flex-wrap gap-2 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-sm ${className}`}>
-      {tabs.map((tab) => (
-        <NavLink
-          key={tab.path}
-          to={tab.path}
-          end={tab.end}
-          className={({ isActive }) =>
-            `rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
-              isActive
-                ? 'bg-primary text-white shadow-md shadow-primary/25'
-                : 'text-text-secondary hover:bg-slate-50 hover:text-text-primary'
-            }`
-          }
-        >
-          {tab.label}
-        </NavLink>
-      ))}
+    <nav
+      className={`scrollbar-thin -mx-1 overflow-x-auto px-1 ${className}`}
+      aria-label="Section tabs"
+    >
+      <div className="flex min-w-max gap-2 rounded-2xl border border-slate-200/80 bg-white p-2 shadow-sm sm:flex-wrap sm:min-w-0">
+        {tabs.map((tab) => (
+          <NavLink
+            key={tab.path}
+            to={tab.path}
+            end={tab.end}
+            className={({ isActive }) =>
+              `shrink-0 rounded-xl px-3 py-2 text-xs font-semibold transition-all sm:px-4 sm:py-2.5 sm:text-sm ${
+                isActive
+                  ? 'bg-primary text-white shadow-md shadow-primary/25'
+                  : 'text-text-secondary hover:bg-slate-50 hover:text-text-primary'
+              }`
+            }
+          >
+            {tab.label}
+          </NavLink>
+        ))}
+      </div>
     </nav>
   );
 }

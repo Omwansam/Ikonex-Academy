@@ -11,7 +11,7 @@ export default function AdminLayout() {
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen overflow-x-hidden bg-background">
       <Sidebar
         navItems={ADMIN_NAV}
         collapsed={!isMobile && collapsed}
@@ -19,10 +19,10 @@ export default function AdminLayout() {
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
       />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
         <TopNavbar onMenuClick={() => setMobileOpen(true)} notificationsPath="/admin/notifications" />
-        <main className="app-main flex-1 overflow-y-auto p-4 lg:p-8">
-          <div className="page-enter mx-auto max-w-[1600px]">
+        <main className="app-main flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-4 lg:p-8 safe-bottom">
+          <div className="page-enter mx-auto w-full max-w-[1600px]">
             <Outlet />
           </div>
         </main>

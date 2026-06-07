@@ -125,9 +125,9 @@ export default function Sidebar({ navItems, collapsed, onToggle, mobileOpen, onM
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-secondary to-slate-900 shadow-2xl transition-all duration-300 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 max-w-[85vw] flex-col bg-gradient-to-b from-secondary to-slate-900 shadow-2xl transition-all duration-300 lg:static lg:max-w-none lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${collapsed ? 'w-[72px]' : 'w-64'}`}
+        } ${collapsed && !mobileOpen ? 'lg:w-[72px]' : 'lg:w-64'}`}
       >
         {sidebarContent}
       </aside>

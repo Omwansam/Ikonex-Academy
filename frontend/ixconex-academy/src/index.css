@@ -29,10 +29,37 @@ body {
   margin: 0;
   background-color: var(--color-background);
   color: var(--color-text-primary);
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 #root {
   min-height: 100svh;
+  min-height: 100dvh;
+}
+
+/* Safe area for notched phones */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Horizontal scroll containers with fade hint on mobile */
+.table-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* App shell background */
@@ -60,6 +87,12 @@ body {
 
 .card-elevated:hover {
   box-shadow: var(--shadow-elevated);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-elevated:hover {
+    transform: translateY(-1px);
+  }
 }
 
 .page-enter {

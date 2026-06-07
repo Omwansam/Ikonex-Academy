@@ -4,12 +4,14 @@ import PageHeader from '../../components/layout/PageHeader';
 import Card, { CardHeader } from '../../components/ui/Card';
 import StatCard from '../../components/ui/StatCard';
 import { PageLoader } from '../../components/ui/LoadingSpinner';
-import { TodayTimeline, WeeklyTimetableGrid } from '../../components/student/TimetableViews';
+import { TodayTimeline, WeeklyTimetableGrid, DayScheduleList } from '../../components/student/TimetableViews';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import { useStudentId } from '../../hooks/useStudentId';
 import { studentPortalService } from '../../services/studentPortalService';
 
 export default function StudentTimetablePage() {
   const studentId = useStudentId();
+  const isMobile = useIsMobile();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState('grid');
@@ -18,6 +20,10 @@ export default function StudentTimetablePage() {
     if (!studentId) return;
     studentPortalService.getTimetable(studentId).then(setData).finally(() => setLoading(false));
   }, [studentId]);
+
+  useEffect(() => {
+    setView(isMobile ? 'list' : 'grid');
+  }, [isMobile]);
 
   const stats = useMemo(() => {
     if (!data) return null;
@@ -34,6 +40,7 @@ export default function StudentTimetablePage() {
   const now = new Date();
   const currentDayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][now.getDay()];
   const isWeekday = data.schedule.some((d) => d.day === currentDayName);
+  const activeDay = isWeekday ? currentDayName : todayName;
 
   return (
     <div className="space-y-6">
@@ -42,7 +49,7 @@ export default function StudentTimetablePage() {
         subtitle="Your weekly class schedule"
         breadcrumbs={[{ label: 'Student', path: '/student' }, { label: 'Timetable' }]}
       >
-        <span className="rounded-xl bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+        <span className="w-full rounded-xl bg-primary/10 px-4 py-2 text-center text-sm font-semibold text-primary sm:w-auto">
           {data.streamName}
         </span>
       </PageHeader>
@@ -62,13 +69,13 @@ export default function StudentTimetablePage() {
           <TodayTimeline slots={data.today.slots} dayName={todayName} />
         </Card>
 
-        <div className="xl:col-span-3">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="min-w-0 xl:col-span-3">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-bold text-text-primary">Weekly Overview</h2>
               <p className="text-sm text-text-secondary">Monday to Friday class grid</p>
             </div>
-            <div className="flex rounded-xl bg-slate-100 p-1">
+            <div className="flex w-full rounded-xl bg-slate-100 p-1 sm:w-auto">
               {[
                 { id: 'grid', label: 'Grid' },
                 { id: 'list', label: 'By Day' },
@@ -77,7 +84,7 @@ export default function StudentTimetablePage() {
                   key={v.id}
                   type="button"
                   onClick={() => setView(v.id)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all sm:flex-none sm:py-1.5 ${
                     view === v.id ? 'bg-white text-primary shadow-sm' : 'text-text-secondary'
                   }`}
                 >
@@ -88,45 +95,16 @@ export default function StudentTimetablePage() {
           </div>
 
           {view === 'grid' ? (
-            <WeeklyTimetableGrid schedule={data.schedule} activeDay={isWeekday ? currentDayName : todayName} />
+            <WeeklyTimetableGrid schedule={data.schedule} activeDay={activeDay} />
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {data.schedule.map((day) => (
-                <Card key={day.day} padding={false}>
-                  <div className={`border-b px-5 py-4 ${day.day === currentDayName ? 'bg-primary/5' : 'bg-slate-50'}`}>
-                    <h3 className={`font-semibold ${day.day === currentDayName ? 'text-primary' : 'text-text-primary'}`}>
-                      {day.day}
-                      {day.day === currentDayName && (
-                        <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">TODAY</span>
-                      )}
-                    </h3>
-                    <p className="text-xs text-text-secondary">{day.slots.length} periods</p>
-                  </div>
-                  <div className="space-y-3 p-4">
-                    {day.slots.map((slot, idx) => (
-                      <div key={idx} className="flex gap-3 rounded-xl border border-slate-100 p-3">
-                        <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-lg bg-primary/10 py-2">
-                          <span className="text-xs font-bold text-primary">{slot.time.split(':')[0]}</span>
-                          <span className="text-[10px] text-text-secondary">:{slot.time.split(':')[1]}</span>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-text-primary">{slot.subject}</p>
-                          <p className="text-xs text-text-secondary">{slot.teacher}</p>
-                          <p className="text-xs text-text-secondary">{slot.room}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              ))}
-            </div>
+            <DayScheduleList schedule={data.schedule} activeDay={activeDay} />
           )}
         </div>
       </div>
 
       <Card className="border-dashed bg-slate-50/50">
-        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-text-secondary">
-          <p>Period 1: 08:00 – 09:15 · Period 2: 09:30 – 10:45 · Period 3: 11:00 – 12:15</p>
+        <div className="flex flex-col gap-2 text-sm text-text-secondary sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
+          <p className="text-xs sm:text-sm">Period 1: 08:00 – 09:15 · Period 2: 09:30 – 10:45 · Period 3: 11:00 – 12:15</p>
           <p className="font-medium text-text-primary">Academic Year 2024 · Term 1</p>
         </div>
       </Card>

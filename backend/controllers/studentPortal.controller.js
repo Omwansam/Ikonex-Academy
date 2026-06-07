@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { prisma } = require('../config/db');
-const { formatStudent, formatSubject, formatEvent } = require('../utils/formatters');
+const { formatStudent, formatSubject, formatEvent, formatStream } = require('../utils/formatters');
 const { computeGrade } = require('../utils/grading');
 const {
     getStudentResults,
@@ -12,12 +12,32 @@ function getStudentId(req) {
     return req.user.studentId;
 }
 
+async function computePerformanceTrend(studentId) {
+    const scores = await prisma.score.findMany({
+        where: { studentId },
+        include: { assessment: true },
+    });
+
+    const byTerm = {};
+    for (const entry of scores) {
+        const term = entry.assessment.term;
+        if (!byTerm[term]) byTerm[term] = { total: 0, max: 0 };
+        byTerm[term].total += entry.score;
+        byTerm[term].max += entry.assessment.maxScore;
+    }
+
+    return Object.entries(byTerm).map(([term, { total, max }]) => ({
+        term,
+        score: max ? Math.round((total / max) * 100) : 0,
+    }));
+}
+
 const getDashboard = async (req, res, next) => {
     try {
         const studentId = getStudentId(req);
         const student = await prisma.student.findUnique({
             where: { id: studentId },
-            include: { stream: true },
+            include: { stream: { include: { classTeacher: true } } },
         });
         if (!student) {
             return res.status(404).json({ error: 'Student not found' });
@@ -42,7 +62,10 @@ const getDashboard = async (req, res, next) => {
         const maxTotal = results.reduce((s, r) => s + r.maxTotal, 0);
         const average = maxTotal ? ((total / maxTotal) * 100).toFixed(1) : 0;
 
-        const assessments = await getStudentAssessmentDetails(studentId);
+        const [assessments, performanceTrend] = await Promise.all([
+            getStudentAssessmentDetails(studentId),
+            computePerformanceTrend(studentId),
+        ]);
         const upcoming = assessments.filter((a) => a.status === 'Upcoming').slice(0, 3);
 
         const studentNotifications = notifications
@@ -60,7 +83,7 @@ const getDashboard = async (req, res, next) => {
 
         res.status(200).json({
             student: formatStudent(student),
-            stream: student.stream,
+            stream: formatStream(student.stream),
             stats: {
                 className: student.stream.name,
                 average,
@@ -81,7 +104,7 @@ const getDashboard = async (req, res, next) => {
             },
             notifications: studentNotifications,
             upcomingAssessments: upcoming,
-            performanceTrend: [],
+            performanceTrend,
             recentEvents: events.map(formatEvent),
             term: settings?.currentTerm || 'Term 1',
         });
@@ -95,13 +118,13 @@ const getProfile = async (req, res, next) => {
         const studentId = getStudentId(req);
         const student = await prisma.student.findUnique({
             where: { id: studentId },
-            include: { stream: true },
+            include: { stream: { include: { classTeacher: true } } },
         });
         const settings = await prisma.schoolSettings.findUnique({ where: { id: 1 } });
 
         res.status(200).json({
             student: formatStudent(student),
-            stream: student.stream,
+            stream: formatStream(student.stream),
             settings,
         });
     } catch (error) {

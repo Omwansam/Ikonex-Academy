@@ -71,15 +71,17 @@ export default function DashboardPage() {
           <CardHeader title="Recent Activities" subtitle="Latest system activities" />
           <div className="space-y-1">
             {activities.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-4 rounded-xl p-3 transition-colors hover:bg-slate-50">
-                <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
+              <div key={activity.id} className="flex flex-col gap-2 rounded-xl p-3 transition-colors hover:bg-slate-50 sm:flex-row sm:items-start sm:gap-4">
+                <div className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
+                  <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-text-primary">{activity.action}</p>
+                    <p className="text-sm text-text-secondary">{activity.detail}</p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-text-primary">{activity.action}</p>
-                  <p className="text-sm text-text-secondary">{activity.detail}</p>
-                </div>
-                <span className="shrink-0 rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-text-secondary">{activity.time}</span>
+                <span className="shrink-0 self-start rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-text-secondary sm:self-auto">{activity.time}</span>
               </div>
             ))}
           </div>

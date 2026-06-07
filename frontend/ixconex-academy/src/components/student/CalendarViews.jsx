@@ -60,12 +60,12 @@ export function MonthCalendar({ events, selectedDate, onSelectDate }) {
   const nextMonth = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1));
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-bold text-text-primary">
+    <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
+      <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-base font-bold text-text-primary sm:text-lg">
           {MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}
         </h3>
-        <div className="flex gap-1">
+        <div className="flex gap-1 self-end sm:self-auto">
           <button type="button" onClick={prevMonth} className="rounded-lg p-2 text-text-secondary hover:bg-slate-100 hover:text-primary">
             <FiChevronLeft size={18} />
           </button>
@@ -78,15 +78,16 @@ export function MonthCalendar({ events, selectedDate, onSelectDate }) {
         </div>
       </div>
 
-      <div className="mb-2 grid grid-cols-7 gap-1">
+      <div className="mb-1 grid grid-cols-7 gap-0.5 sm:mb-2 sm:gap-1">
         {WEEKDAYS.map((d) => (
-          <div key={d} className="py-2 text-center text-xs font-semibold uppercase tracking-wide text-text-secondary">
-            {d}
+          <div key={d} className="py-1 text-center text-[10px] font-semibold uppercase tracking-wide text-text-secondary sm:py-2 sm:text-xs">
+            <span className="sm:hidden">{d.charAt(0)}</span>
+            <span className="hidden sm:inline">{d}</span>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
         {calendarDays.map(({ date, outside }, idx) => {
           const key = toDateKey(date);
           const dayEvents = eventMap[key] || [];
@@ -98,7 +99,7 @@ export function MonthCalendar({ events, selectedDate, onSelectDate }) {
               key={idx}
               type="button"
               onClick={() => onSelectDate(date)}
-              className={`relative flex min-h-[52px] flex-col items-center rounded-xl p-1.5 text-sm transition-all ${
+              className={`relative flex min-h-[40px] flex-col items-center rounded-lg p-0.5 text-xs transition-all sm:min-h-[52px] sm:rounded-xl sm:p-1.5 sm:text-sm ${
                 outside ? 'text-slate-300' : 'text-text-primary hover:bg-slate-50'
               } ${isSelected ? 'bg-primary text-white shadow-md hover:bg-primary' : ''} ${isToday && !isSelected ? 'ring-2 ring-primary/30 ring-offset-1' : ''}`}
             >
@@ -129,13 +130,13 @@ export function EventCard({ event, featured = false }) {
 
   if (featured) {
     return (
-      <div className={`relative overflow-hidden rounded-2xl border p-6 ${meta.light}`}>
-        <div className="absolute -right-4 -top-4 text-6xl opacity-20">{meta.icon}</div>
+      <div className={`relative overflow-hidden rounded-2xl border p-4 sm:p-6 ${meta.light}`}>
+        <div className="absolute -right-4 -top-4 text-5xl opacity-20 sm:text-6xl">{meta.icon}</div>
         <span className="inline-flex rounded-full bg-white/80 px-3 py-1 text-xs font-semibold capitalize shadow-sm">
           Next up · {meta.label}
         </span>
-        <h3 className="mt-4 text-2xl font-bold">{event.title}</h3>
-        <div className="mt-4 flex flex-wrap gap-4 text-sm">
+        <h3 className="mt-3 text-xl font-bold sm:mt-4 sm:text-2xl">{event.title}</h3>
+        <div className="mt-3 flex flex-col gap-2 text-sm sm:mt-4 sm:flex-row sm:flex-wrap sm:gap-4">
           <span className="flex items-center gap-2 font-medium">
             <FiCalendar size={16} />
             {eventDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -148,8 +149,8 @@ export function EventCard({ event, featured = false }) {
   }
 
   return (
-    <div className={`flex gap-4 rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md ${event.isPast ? 'opacity-60' : ''}`}>
-      <div className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl border ${meta.light}`}>
+    <div className={`flex gap-3 rounded-xl border bg-white p-3 shadow-sm transition-all hover:shadow-md sm:gap-4 sm:p-4 ${event.isPast ? 'opacity-60' : ''}`}>
+      <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl border sm:h-16 sm:w-16 ${meta.light}`}>
         <span className="text-xs font-semibold uppercase">{month}</span>
         <span className="text-2xl font-bold leading-none">{day}</span>
       </div>
