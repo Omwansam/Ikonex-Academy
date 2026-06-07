@@ -7,12 +7,14 @@ import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import Card from '../../../components/ui/Card';
 import { PageLoader } from '../../../components/ui/LoadingSpinner';
+import { useToast } from '../../../context/ToastContext';
 import { subjectService } from '../../../services/subjectService';
 import { classStreamService } from '../../../services/classStreamService';
 
 export default function SubjectFormPage({ mode = 'create' }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [teachers, setTeachers] = useState([]);
   const [streams, setStreams] = useState([]);
   const [loading, setLoading] = useState(mode === 'edit');
@@ -41,7 +43,10 @@ export default function SubjectFormPage({ mode = 'create' }) {
     try {
       if (mode === 'edit') await subjectService.update(id, payload);
       else await subjectService.create(payload);
+      addToast(mode === 'edit' ? 'Subject updated successfully' : 'Subject created successfully');
       navigate('/admin/subjects');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }

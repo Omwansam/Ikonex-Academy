@@ -12,11 +12,13 @@ import { PageLoader } from '../../../components/ui/LoadingSpinner';
 import { studentService } from '../../../services/studentService';
 import { classStreamService } from '../../../services/classStreamService';
 import { GENDER_OPTIONS, STATUS_OPTIONS } from '../../../utils/constants';
-import { formatDate, formatFullName } from '../../../utils/formatters';
+import { useToast } from '../../../context/ToastContext';
+import { formatDate, formatFullName, toInputDate } from '../../../utils/formatters';
 
 export default function StudentFormPage({ mode = 'create' }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [streams, setStreams] = useState([]);
   const [loading, setLoading] = useState(mode === 'edit');
   const [submitting, setSubmitting] = useState(false);
@@ -25,7 +27,14 @@ export default function StudentFormPage({ mode = 'create' }) {
   useEffect(() => {
     classStreamService.getAllSimple().then(setStreams);
     if (mode === 'edit' && id) {
-      studentService.getById(id).then((s) => { reset(s); setLoading(false); });
+      studentService.getById(id).then((s) => {
+        reset({
+          ...s,
+          dateOfBirth: toInputDate(s.dateOfBirth),
+          admissionDate: toInputDate(s.admissionDate),
+        });
+        setLoading(false);
+      });
     }
   }, [id, mode, reset]);
 
@@ -36,7 +45,10 @@ export default function StudentFormPage({ mode = 'create' }) {
     try {
       if (mode === 'edit') await studentService.update(id, payload);
       else await studentService.create(payload);
+      addToast(mode === 'edit' ? 'Student updated successfully' : 'Student registered successfully');
       navigate('/admin/students');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }

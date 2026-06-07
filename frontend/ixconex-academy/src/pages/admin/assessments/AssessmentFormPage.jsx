@@ -13,6 +13,7 @@ import { subjectService } from '../../../services/subjectService';
 import { classStreamService } from '../../../services/classStreamService';
 import { studentService } from '../../../services/studentService';
 import { ASSESSMENT_TYPES } from '../../../utils/constants';
+import { toInputDate } from '../../../utils/formatters';
 
 export default function AssessmentFormPage({ mode = 'create' }) {
   const { id } = useParams();
@@ -30,7 +31,10 @@ export default function AssessmentFormPage({ mode = 'create' }) {
       setStreams(st);
     });
     if (mode === 'edit' && id) {
-      assessmentService.getById(id).then((a) => { reset(a); setLoading(false); });
+      assessmentService.getById(id).then((a) => {
+        reset({ ...a, date: toInputDate(a.date) });
+        setLoading(false);
+      });
     }
   }, [id, mode, reset]);
 
@@ -51,6 +55,8 @@ export default function AssessmentFormPage({ mode = 'create' }) {
       else await assessmentService.create(payload);
       addToast(mode === 'edit' ? 'Assessment updated successfully' : 'Assessment created successfully');
       navigate('/admin/assessments');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }

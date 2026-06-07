@@ -32,6 +32,8 @@ export default function TeacherFormPage({ mode = 'create' }) {
       else await teacherService.create(data);
       addToast(mode === 'edit' ? 'Teacher updated successfully' : 'Teacher added successfully');
       navigate('/admin/teachers');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }

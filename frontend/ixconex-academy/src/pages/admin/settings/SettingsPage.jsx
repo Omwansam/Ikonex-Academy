@@ -26,6 +26,8 @@ export default function SettingsPage() {
     try {
       await settingsService.update(data);
       addToast('Settings saved successfully');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }

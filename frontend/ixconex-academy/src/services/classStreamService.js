@@ -1,67 +1,49 @@
-import {
-  classStreams,
-  generateId,
-  paginate,
-  delay,
-} from './mockData';
-
-let streamsStore = [...classStreams];
+import api, { getErrorMessage } from './api';
 
 export const classStreamService = {
   async getAll(params = {}) {
-    await delay();
-    let filtered = [...streamsStore];
-    const { search, classLevel, page = 1, pageSize = 10 } = params;
-
-    if (search) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.classTeacher.toLowerCase().includes(q),
-      );
-    }
-    if (classLevel) filtered = filtered.filter((s) => s.classLevel === classLevel);
-
-    return paginate(filtered, page, pageSize);
+    const { data } = await api.get('/streams', { params });
+    return data;
   },
 
   async getById(id) {
-    await delay();
-    const stream = streamsStore.find((s) => s.id === Number(id));
-    if (!stream) throw new Error('Class stream not found');
-    return stream;
+    try {
+      const { data } = await api.get(`/streams/${id}`);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
-  async create(data) {
-    await delay();
-    const newStream = {
-      id: generateId(),
-      ...data,
-      studentCount: 0,
-    };
-    streamsStore.push(newStream);
-    return newStream;
+  async create(payload) {
+    try {
+      const { data } = await api.post('/streams', payload);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
-  async update(id, data) {
-    await delay();
-    const index = streamsStore.findIndex((s) => s.id === Number(id));
-    if (index === -1) throw new Error('Class stream not found');
-    streamsStore[index] = { ...streamsStore[index], ...data };
-    return streamsStore[index];
+  async update(id, payload) {
+    try {
+      const { data } = await api.put(`/streams/${id}`, payload);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
   async delete(id) {
-    await delay();
-    const index = streamsStore.findIndex((s) => s.id === Number(id));
-    if (index === -1) throw new Error('Class stream not found');
-    streamsStore.splice(index, 1);
-    return { success: true };
+    try {
+      const { data } = await api.delete(`/streams/${id}`);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
   async getAllSimple() {
-    await delay();
-    return streamsStore.map(({ id, name, classLevel }) => ({ id, name, classLevel }));
+    const { data } = await api.get('/streams/simple');
+    return data;
   },
 };

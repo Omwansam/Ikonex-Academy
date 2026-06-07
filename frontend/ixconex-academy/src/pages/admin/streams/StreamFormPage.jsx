@@ -41,6 +41,8 @@ export default function StreamFormPage({ mode = 'create' }) {
       else await classStreamService.create(payload);
       addToast(mode === 'edit' ? 'Stream updated successfully' : 'Stream created successfully');
       navigate('/admin/streams');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }

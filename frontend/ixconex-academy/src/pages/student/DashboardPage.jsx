@@ -43,8 +43,9 @@ export default function StudentDashboardPage() {
   const { student, stats, results, upcomingAssessments, performanceTrend, notifications, recentEvents, term } = data;
   const subjectScores = results.map((r) => ({
     subject: r.subjectName,
-    score: Math.round((r.total / r.maxTotal) * 100),
+    score: r.maxTotal ? Math.round((r.total / r.maxTotal) * 100) : 0,
   }));
+  const trendData = (performanceTrend || []).map((p) => ({ term: p.term, score: p.score }));
 
   return (
     <div className="space-y-8">
@@ -110,7 +111,7 @@ export default function StudentDashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <StudentPerformanceChart data={performanceTrend.map((p) => ({ term: p.term, score: p.score }))} title="My Performance Trend" />
+        <StudentPerformanceChart data={trendData} title="My Performance Trend" />
         <SubjectScoresChart data={subjectScores} title="Subject Scores" />
       </div>
 

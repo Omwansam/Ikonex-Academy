@@ -1,88 +1,67 @@
-import {
-  assessments,
-  scores,
-  generateId,
-  paginate,
-  delay,
-} from './mockData';
-
-let assessmentsStore = [...assessments];
-let scoresStore = [...scores];
+import api, { getErrorMessage } from './api';
 
 export const assessmentService = {
   async getAll(params = {}) {
-    await delay();
-    let filtered = [...assessmentsStore];
-    const { search, type, streamId, page = 1, pageSize = 10 } = params;
-
-    if (search) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (a) =>
-          a.title.toLowerCase().includes(q) ||
-          a.subjectName.toLowerCase().includes(q),
-      );
-    }
-    if (type) filtered = filtered.filter((a) => a.type === type);
-    if (streamId) filtered = filtered.filter((a) => a.streamId === Number(streamId));
-
-    return paginate(filtered, page, pageSize);
+    const { data } = await api.get('/assessments', { params });
+    return data;
   },
 
   async getById(id) {
-    await delay();
-    const assessment = assessmentsStore.find((a) => a.id === Number(id));
-    if (!assessment) throw new Error('Assessment not found');
-    return assessment;
+    try {
+      const { data } = await api.get(`/assessments/${id}`);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
-  async create(data) {
-    await delay();
-    const newAssessment = { id: generateId(), ...data };
-    assessmentsStore.push(newAssessment);
-    return newAssessment;
+  async create(payload) {
+    try {
+      const { data } = await api.post('/assessments', payload);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
-  async update(id, data) {
-    await delay();
-    const index = assessmentsStore.findIndex((a) => a.id === Number(id));
-    if (index === -1) throw new Error('Assessment not found');
-    assessmentsStore[index] = { ...assessmentsStore[index], ...data };
-    return assessmentsStore[index];
+  async update(id, payload) {
+    try {
+      const { data } = await api.put(`/assessments/${id}`, payload);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
   async delete(id) {
-    await delay();
-    const index = assessmentsStore.findIndex((a) => a.id === Number(id));
-    if (index === -1) throw new Error('Assessment not found');
-    assessmentsStore.splice(index, 1);
-    return { success: true };
+    try {
+      const { data } = await api.delete(`/assessments/${id}`);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 
   async getScores(assessmentId) {
-    await delay();
-    return scoresStore.filter((s) => s.assessmentId === Number(assessmentId));
+    const { data } = await api.get(`/assessments/${assessmentId}/scores`);
+    return data;
   },
 
-  async submitScore(data) {
-    await delay();
-    const { assessmentId, studentId, score } = data;
-    const existing = scoresStore.find(
-      (s) => s.assessmentId === Number(assessmentId) && s.studentId === Number(studentId),
-    );
-    if (existing) {
-      throw new Error('Score already submitted for this student');
+  async submitScore({ assessmentId, studentId, score }) {
+    try {
+      const { data } = await api.post(`/assessments/${assessmentId}/scores`, { studentId, score });
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
     }
-    const newScore = { id: generateId(), assessmentId: Number(assessmentId), studentId: Number(studentId), score: Number(score) };
-    scoresStore.push(newScore);
-    return newScore;
   },
 
   async updateScore(id, score) {
-    await delay();
-    const index = scoresStore.findIndex((s) => s.id === Number(id));
-    if (index === -1) throw new Error('Score not found');
-    scoresStore[index].score = Number(score);
-    return scoresStore[index];
+    try {
+      const { data } = await api.put(`/scores/${id}`, { score });
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 };

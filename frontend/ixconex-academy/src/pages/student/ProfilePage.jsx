@@ -37,6 +37,8 @@ export default function StudentProfilePage() {
       setEditing(false);
       const updated = await studentPortalService.getProfile(studentId);
       setProfile(updated);
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSubmitting(false);
     }

@@ -1,115 +1,68 @@
-import {
-  dashboardStats,
-  recentActivities,
-  performanceTrends,
-  subjectPerformance,
-  streamDistribution,
-  gradeDistribution,
-  studentResults,
-  rankings,
-  students,
-  delay,
-} from './mockData';
+import api from './api';
 
 export const reportService = {
   async getDashboardStats() {
-    await delay();
-    return dashboardStats;
+    const { data } = await api.get('/reports/dashboard/stats');
+    return data;
   },
 
   async getRecentActivities() {
-    await delay();
-    return recentActivities;
+    const { data } = await api.get('/reports/dashboard/activities');
+    return data;
   },
 
   async getPerformanceTrends() {
-    await delay();
-    return performanceTrends;
+    const { data } = await api.get('/reports/performance-trends');
+    return data;
   },
 
   async getSubjectPerformance() {
-    await delay();
-    return subjectPerformance;
+    const { data } = await api.get('/reports/subject-performance');
+    return data;
   },
 
   async getStreamDistribution() {
-    await delay();
-    return streamDistribution;
+    const { data } = await api.get('/reports/stream-distribution');
+    return data;
   },
 
   async getGradeDistribution() {
-    await delay();
-    return gradeDistribution;
+    const { data } = await api.get('/reports/grade-distribution');
+    return data;
   },
 
   async getStudentResults(studentId) {
-    await delay();
-    return studentResults.filter((r) => r.studentId === Number(studentId));
+    const { data } = await api.get(`/reports/students/${studentId}/results`);
+    return data;
   },
 
   async getClassResults(streamId) {
-    await delay();
-    const streamStudents = students.filter((s) => s.streamId === Number(streamId));
-    return streamStudents.map((student) => {
-      const results = studentResults.filter((r) => r.studentId === student.id);
-      const total = results.reduce((sum, r) => sum + r.total, 0);
-      const average = results.length ? total / results.length : 0;
-      return {
-        studentId: student.id,
-        name: `${student.firstName} ${student.lastName}`,
-        admissionNumber: student.admissionNumber,
-        total,
-        average: average.toFixed(1),
-        subjects: results.length,
-      };
-    });
+    const { data } = await api.get(`/reports/streams/${streamId}/results`);
+    return data;
   },
 
   async getSubjectResults(subjectId) {
-    await delay();
-    return studentResults.filter((r) => r.subjectId === Number(subjectId));
+    const { data } = await api.get(`/reports/subjects/${subjectId}/results`);
+    return data;
   },
 
   async getRankings(params = {}) {
-    await delay();
-    let filtered = [...rankings];
-    if (params.streamId) {
-      const stream = students.find((s) => s.streamId === Number(params.streamId));
-      if (stream) {
-        filtered = filtered.filter((r) => r.stream === stream.streamName);
-      }
-    }
-    return filtered;
+    const { data } = await api.get('/reports/rankings', { params });
+    return data;
   },
 
   async getReportCard(studentId) {
-    await delay();
-    const student = students.find((s) => s.id === Number(studentId));
-    if (!student) throw new Error('Student not found');
-    const results = studentResults.filter((r) => r.studentId === Number(studentId));
-    const totalMarks = results.reduce((sum, r) => sum + r.total, 0);
-    const average = results.length ? (totalMarks / results.length).toFixed(1) : 0;
-    const ranking = rankings.find((r) => r.studentId === Number(studentId));
-    return {
-      student,
-      results,
-      summary: {
-        totalMarks,
-        average,
-        position: ranking?.position || '—',
-        grade: average >= 80 ? 'A' : average >= 70 ? 'B' : average >= 60 ? 'C' : average >= 50 ? 'D' : 'E',
-      },
-      teacherComment: 'Shows great improvement. Keep up the good work.',
-    };
+    const { data } = await api.get(`/reports/students/${studentId}/report-card`);
+    return data;
   },
 
   async getTopStudents(limit = 5) {
-    await delay();
-    return rankings.slice(0, limit);
+    const { data } = await api.get('/reports/top-students', { params: { limit } });
+    return data;
   },
 
   async getBottomStudents(limit = 5) {
-    await delay();
-    return [...rankings].reverse().slice(0, limit);
+    const { data } = await api.get('/reports/bottom-students', { params: { limit } });
+    return data;
   },
 };

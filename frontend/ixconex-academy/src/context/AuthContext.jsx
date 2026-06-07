@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -7,17 +8,32 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ikonex_user');
-    if (stored) {
+    const handleUnauthorized = () => setUser(null);
+    window.addEventListener('ikonex:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('ikonex:unauthorized', handleUnauthorized);
+  }, []);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      const token = localStorage.getItem('ikonex_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const parsed = JSON.parse(stored);
-        const { password: _, ...safeUser } = parsed;
-        setUser(safeUser);
+        const currentUser = await authService.getMe();
+        setUser(currentUser);
+        localStorage.setItem('ikonex_user', JSON.stringify(currentUser));
       } catch {
         localStorage.removeItem('ikonex_user');
+        localStorage.removeItem('ikonex_token');
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    restoreSession();
   }, []);
 
   const login = useCallback((userData, token) => {
@@ -27,7 +43,12 @@ export function AuthProvider({ children }) {
     setUser(userData);
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Clear local session even if the logout request fails
+    }
     localStorage.removeItem('ikonex_user');
     localStorage.removeItem('ikonex_token');
     setUser(null);

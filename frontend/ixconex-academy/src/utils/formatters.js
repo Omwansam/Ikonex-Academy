@@ -7,6 +7,13 @@ export function formatDate(date) {
   });
 }
 
+export function toInputDate(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toISOString().slice(0, 10);
+}
+
 export function formatFullName(firstName, lastName) {
   return `${firstName} ${lastName}`.trim();
 }

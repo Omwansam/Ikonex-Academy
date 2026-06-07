@@ -1,64 +1,54 @@
-import { notifications, schoolSettings, generateId, delay } from './mockData';
-
-let notificationsStore = [...notifications];
-let settingsStore = { ...schoolSettings };
+import api, { getErrorMessage } from './api';
 
 export const notificationService = {
   async getAll({ role, studentId } = {}) {
-    await delay();
-    return notificationsStore
-      .filter((n) => {
-        if (n.audience === 'all') return true;
-        if (role === 'admin') return n.audience === 'admin';
-        if (role === 'student') {
-          return n.audience === 'student' && (!n.studentId || n.studentId === studentId);
-        }
-        return false;
-      })
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const params = {};
+    if (role) params.role = role;
+    if (studentId) params.studentId = studentId;
+    const { data } = await api.get('/notifications', { params });
+    return data;
   },
 
   async markAsRead(id) {
-    await delay();
-    const notification = notificationsStore.find((n) => n.id === Number(id));
-    if (notification) notification.read = true;
-    return notification;
+    const { data } = await api.patch(`/notifications/${id}/read`);
+    return data;
   },
 
-  async markAllAsRead({ role, studentId }) {
-    await delay();
-    const list = await this.getAll({ role, studentId });
-    list.forEach((n) => { n.read = true; });
-    return { success: true };
+  async markAllAsRead({ role, studentId } = {}) {
+    const { data } = await api.post('/notifications/read-all', { role, studentId });
+    return data;
   },
 
-  async getUnreadCount({ role, studentId }) {
-    const list = await this.getAll({ role, studentId });
-    return list.filter((n) => !n.read).length;
+  async getUnreadCount({ role, studentId } = {}) {
+    const params = {};
+    if (role) params.role = role;
+    if (studentId) params.studentId = studentId;
+    const { data } = await api.get('/notifications/unread-count', { params });
+    return data;
   },
 
-  async create(data) {
-    await delay();
-    const notification = {
-      id: generateId(),
-      read: false,
-      createdAt: new Date().toISOString(),
-      ...data,
-    };
-    notificationsStore.unshift(notification);
-    return notification;
+  async create(payload) {
+    try {
+      const { data } = await api.post('/notifications', payload);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 };
 
 export const settingsService = {
   async get() {
-    await delay();
-    return { ...settingsStore };
+    const { data } = await api.get('/settings');
+    return data;
   },
 
-  async update(data) {
-    await delay();
-    settingsStore = { ...settingsStore, ...data };
-    return settingsStore;
+  async update(payload) {
+    try {
+      const { data } = await api.put('/settings', payload);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   },
 };
