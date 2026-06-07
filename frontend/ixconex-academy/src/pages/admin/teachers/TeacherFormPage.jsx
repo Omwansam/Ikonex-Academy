@@ -30,7 +30,7 @@ export default function TeacherFormPage({ mode = 'create' }) {
     try {
       if (mode === 'edit') await teacherService.update(id, data);
       else await teacherService.create(data);
-      addToast(mode === 'edit' ? 'Teacher updated' : 'Teacher added');
+      addToast(mode === 'edit' ? 'Teacher updated successfully' : 'Teacher added successfully');
       navigate('/admin/teachers');
     } finally {
       setSubmitting(false);
@@ -41,22 +41,71 @@ export default function TeacherFormPage({ mode = 'create' }) {
 
   return (
     <div>
-      <PageHeader title={mode === 'edit' ? 'Edit Teacher' : 'Add Teacher'} breadcrumbs={[{ label: 'Admin', path: '/admin' }, { label: 'Teachers', path: '/admin/teachers' }, { label: mode === 'edit' ? 'Edit' : 'Add' }]} />
-      <Card className="max-w-2xl">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input label="Full Name" error={errors.name?.message} {...register('name', { required: 'Required' })} />
-          <Input label="Subject Specialization" error={errors.subject?.message} {...register('subject', { required: 'Required' })} />
-          <Input label="Email" type="email" error={errors.email?.message} {...register('email', { required: 'Required' })} />
-          <Input label="Phone" error={errors.phone?.message} {...register('phone', { required: 'Required' })} />
-          {mode === 'edit' && (
-            <Select label="Status" options={STATUS_OPTIONS.map((s) => ({ value: s, label: s }))} {...register('status')} />
-          )}
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" loading={submitting}>{mode === 'edit' ? 'Update' : 'Add'} Teacher</Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/admin/teachers')}>Cancel</Button>
+      <PageHeader
+        title={mode === 'edit' ? 'Edit Teacher' : 'Add Teacher'}
+        subtitle={mode === 'edit' ? 'Update teacher profile and contact details' : 'Register a new teacher with subject specialization'}
+        breadcrumbs={[
+          { label: 'Admin', path: '/admin' },
+          { label: 'Teachers', path: '/admin/teachers' },
+          { label: mode === 'edit' ? 'Edit' : 'Add' },
+        ]}
+      />
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Card>
+          <h3 className="mb-4 text-lg font-semibold">Personal Information</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="Full Name"
+              placeholder="e.g. Jane Wanjiku"
+              error={errors.name?.message}
+              {...register('name', { required: 'Full name is required' })}
+            />
+            {mode === 'edit' && (
+              <Select
+                label="Status"
+                options={STATUS_OPTIONS.map((s) => ({ value: s, label: s }))}
+                {...register('status')}
+              />
+            )}
           </div>
-        </form>
-      </Card>
+        </Card>
+
+        <Card>
+          <h3 className="mb-4 text-lg font-semibold">Professional Details</h3>
+          <Input
+            label="Subject Specialization"
+            placeholder="e.g. Mathematics, English"
+            error={errors.subject?.message}
+            {...register('subject', { required: 'Subject specialization is required' })}
+          />
+          <p className="mt-3 text-xs text-text-secondary">The primary subject this teacher is qualified to teach.</p>
+        </Card>
+
+        <Card>
+          <h3 className="mb-4 text-lg font-semibold">Contact Information</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="Email"
+              type="email"
+              placeholder="teacher@school.ac.ke"
+              error={errors.email?.message}
+              {...register('email', { required: 'Email is required' })}
+            />
+            <Input
+              label="Phone"
+              placeholder="e.g. 0712 345 678"
+              error={errors.phone?.message}
+              {...register('phone', { required: 'Phone number is required' })}
+            />
+          </div>
+        </Card>
+
+        <div className="flex gap-3">
+          <Button type="submit" loading={submitting}>{mode === 'edit' ? 'Update' : 'Add'} Teacher</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/teachers')}>Cancel</Button>
+        </div>
+      </form>
     </div>
   );
 }

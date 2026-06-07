@@ -94,7 +94,18 @@ export default function Sidebar({ navItems, collapsed, onToggle, mobileOpen, onM
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-3">
+      <div className="border-t border-white/10 p-3 space-y-1">
+        {onToggle && (
+          <button
+            type="button"
+            onClick={onToggle}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className={`hidden w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 transition-all hover:bg-white/5 hover:text-white lg:flex ${collapsed ? 'justify-center' : ''}`}
+          >
+            {collapsed ? <FiChevronRight size={19} /> : <FiChevronLeft size={19} />}
+            {!collapsed && <span>Collapse</span>}
+          </button>
+        )}
         <button
           type="button"
           onClick={logout}

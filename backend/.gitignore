@@ -1,0 +1,10 @@
+node_modules
+.env
+.env.local
+
+# Prisma generated client (custom output path, if used)
+generated/
+
+# Uploaded files
+uploads/*
+!uploads/.gitkeep

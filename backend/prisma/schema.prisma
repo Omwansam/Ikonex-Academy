@@ -1,0 +1,320 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  admin
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+enum EntityStatus {
+  Active
+  Inactive
+}
+
+enum AttendanceStatus {
+  Present
+  Absent
+  Late
+}
+
+enum NotificationType {
+  info
+  warning
+  danger
+  success
+}
+
+enum NotificationAudience {
+  all
+  admin
+  student
+}
+
+enum FeeStatus {
+  Pending
+  Partial
+  Paid
+}
+
+enum ActivityType {
+  student
+  assessment
+  report
+  stream
+  system
+}
+
+enum EventType {
+  meeting
+  exam
+  sports
+  event
+  holiday
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+model User {
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  password         String
+  name             String
+  role             UserRole  @default(admin)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([role])
+}
+
+// ─── Core LMS entities ───────────────────────────────────────────────────────
+
+model Teacher {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  phone        String        @default("")
+  /// Primary subject specialty (display); see Subject for assigned courses.
+  subject      String        @default("")
+  status       EntityStatus  @default(Active)
+  classStreams ClassStream[]
+  subjects     Subject[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model ClassStream {
+  id                Int                @id @default(autoincrement())
+  name              String
+  classLevel        String
+  capacity          Int                @default(40)
+  classTeacherId    Int
+  classTeacher      Teacher            @relation(fields: [classTeacherId], references: [id], onDelete: Restrict)
+  students          Student[]
+  assessments       Assessment[]
+  attendanceRecords AttendanceRecord[]
+  subjectStreams    SubjectStream[]
+  timetableSlots    TimetableSlot[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([classLevel])
+  @@index([classTeacherId])
+}
+
+model Student {
+  id                Int                @id @default(autoincrement())
+  admissionNumber   String             @unique
+  password          String
+  firstName         String
+  lastName          String
+  gender            Gender             @default(Male)
+  nationality       String             @default("Kenyan")
+  dateOfBirth       DateTime           @db.Date
+  streamId          Int
+  stream            ClassStream        @relation(fields: [streamId], references: [id], onDelete: Restrict)
+  admissionDate     DateTime           @db.Date
+  parentName        String             @default("")
+  parentPhone       String             @default("")
+  parentEmail       String?
+  status            EntityStatus       @default(Active)
+  profileImage      String?
+  scores            Score[]
+  attendanceRecords AttendanceRecord[]
+  fees              FeeRecord[]
+  notifications     Notification[]
+  reportComments    ReportComment[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([streamId])
+  @@index([status])
+  @@index([lastName, firstName])
+}
+
+model Subject {
+  id           Int             @id @default(autoincrement())
+  code         String          @unique
+  name         String
+  description  String          @default("")
+  teacherId    Int
+  teacher      Teacher         @relation(fields: [teacherId], references: [id], onDelete: Restrict)
+  streams      SubjectStream[]
+  assessments  Assessment[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([teacherId])
+  @@index([name])
+}
+
+model SubjectStream {
+  subjectId Int
+  streamId  Int
+  subject   Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  stream    ClassStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+
+  @@id([subjectId, streamId])
+  @@index([streamId])
+}
+
+model Assessment {
+  id        Int         @id @default(autoincrement())
+  title     String
+  /// e.g. CAT, Assignment, Midterm, End Term Exam
+  type      String
+  subjectId Int
+  subject   Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  streamId  Int
+  stream    ClassStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  maxScore  Int         @default(100)
+  date      DateTime    @db.Date
+  term      String
+  scores    Score[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([streamId, term])
+  @@index([subjectId])
+  @@index([date])
+}
+
+model Score {
+  id           Int        @id @default(autoincrement())
+  assessmentId Int
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  studentId    Int
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  score        Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([assessmentId, studentId])
+  @@index([studentId])
+}
+
+model AttendanceRecord {
+  id        Int              @id @default(autoincrement())
+  studentId Int
+  student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  streamId  Int
+  stream    ClassStream      @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  date      DateTime         @db.Date
+  status    AttendanceStatus
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([studentId, date])
+  @@index([streamId, date])
+}
+
+model FeeRecord {
+  id          Int       @id @default(autoincrement())
+  studentId   Int
+  student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  term        String
+  description String
+  amount      Int
+  paid        Int       @default(0)
+  status      FeeStatus @default(Pending)
+  dueDate     DateTime  @db.Date
+  paidDate    DateTime? @db.Date
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([studentId])
+  @@index([status])
+}
+
+model Notification {
+  id        Int                  @id @default(autoincrement())
+  title     String
+  message   String
+  type      NotificationType     @default(info)
+  audience  NotificationAudience @default(all)
+  studentId Int?
+  student   Student?             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  read      Boolean              @default(false)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([audience, read])
+  @@index([studentId])
+}
+
+model SchoolSettings {
+  id            Int      @id @default(1)
+  schoolName    String
+  motto         String
+  address       String
+  phone         String
+  email         String
+  academicYear  String
+  currentTerm   String
+  gradingSystem String   @default("A-E")
+  updatedAt     DateTime @updatedAt
+}
+
+model SchoolEvent {
+  id        Int       @id @default(autoincrement())
+  title     String
+  date      DateTime  @db.Date
+  time      String    @default("09:00")
+  location  String    @default("")
+  type      EventType @default(event)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([date])
+}
+
+model TimetableSlot {
+  id        Int         @id @default(autoincrement())
+  streamId  Int
+  stream    ClassStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  day       String
+  time      String
+  subject   String
+  teacher   String
+  room      String    @default("")
+  sortOrder Int       @default(0)
+
+  @@index([streamId, day])
+}
+
+model ActivityLog {
+  id        Int          @id @default(autoincrement())
+  action    String
+  detail    String
+  type      ActivityType
+  createdAt DateTime     @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([type])
+}
+
+model ReportComment {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  term      String
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, term])
+}
